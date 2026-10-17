@@ -8,6 +8,12 @@ class BrokerThreading(threading.Thread):
        self.addr = addr
        self.dizionario = diz
 
+   def readLine(self, sk):
+       data = b''
+       while (b'\n' not in data):
+           data += sk.recv(1024)
+           if not data: return b''
+       return data.strip()
 
 
 
