@@ -15,5 +15,13 @@ def main():
    sock.sendall((f"pub:{topic}:{messaggio}\n").encode())
 
 
+def readLine(self, sk):
+   data = b''
+   while (b'\n' not in data):
+      data += sk.recv(1024)
+      if not data: return b''
+   return data.strip()
+
+
 if __name__ == "__main__":
    main()
