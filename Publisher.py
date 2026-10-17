@@ -13,9 +13,13 @@ def main():
    topic = input("Inserire il topic: ")
    messaggio = input("Inserire il messaggio: ")
    sock.sendall((f"pub:{topic}:{messaggio}\n").encode())
+   messaggio = readLine(sock).decode("utf-8")
+   if messaggio == "SI":
+      print("Messaggio inviato correttamente")
+   elif messaggio == "NO":
+      print("Il topic inserito non esiste")
 
-
-def readLine(self, sk):
+def readLine( sk):
    data = b''
    while (b'\n' not in data):
       data += sk.recv(1024)
