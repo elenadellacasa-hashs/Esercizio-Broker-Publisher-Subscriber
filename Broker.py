@@ -16,6 +16,26 @@ class BrokerThreading(threading.Thread):
        return data.strip()
 
 
+   def run(self):
+       messaggio = self.readLine(self.sock).decode('utf-8')
+       msg = messaggio.split(" ")
+       if msg[0] == "sub":
+           topic = msg[1]
+           print("subscriber!")
+           if topic in self.dizionario.keys():
+               self.dizionario[topic].append(self.sock)
+               print("Client aggiunto al topic")
+       else:
+           topic = msg[1]
+           mess = msg[2].encode('utf-8')
+           print("publisher!")
+           if topic in self.dizionario:
+               for sock in self.dizionario[topic]:
+                   sock.sendall(mess)
+
+
+
+
 
 
 
