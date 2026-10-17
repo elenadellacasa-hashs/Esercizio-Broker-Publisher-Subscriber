@@ -1,4 +1,5 @@
 import socket
+import sys
 
 
 def main():
@@ -8,15 +9,18 @@ def main():
 
    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
    sock.connect((host, port))
+   if len(sys.argv) < 2:
+       print("Errore!!! non abbastanza argomenti inseriti")
+       return
 
+   stringa = sys.argv[1] + "\n"
+   if len(stringa.split(":")) != 2 or stringa.split(":")[0] != "sub":
+       print("ERRORE! inserire solamente sub:topic")
+       return
 
-   topic = input("Inserire il topic: ")
-   sock.sendall((f"sub:{topic}\n").encode())
-
+   sock.sendall(stringa.encode())
 
    while True:
-
-
        print(sock.recv(1024).decode("utf-8"))
 
 
