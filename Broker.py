@@ -18,10 +18,9 @@ class BrokerThreading(threading.Thread):
 
    def run(self):
        messaggio = self.readLine(self.sock).decode('utf-8')
-       msg = messaggio.split(" ")
+       msg = messaggio.split(":")
        if msg[0] == "sub":
            topic = msg[1]
-           print("subscriber!")
            if topic in self.dizionario.keys():
                self.dizionario[topic].append(self.sock)
                print("Client aggiunto al topic")
