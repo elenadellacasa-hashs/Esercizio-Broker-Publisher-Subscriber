@@ -28,16 +28,16 @@ class BrokerThreading(threading.Thread):
                 self.dizionario[topic] = []
                 self.dizionario[topic].append(self.sock)
 
-        elif msg[0] == "sub":
+        elif msg[0] == "pub":
             topic = msg[1]
             mess = msg[2].encode('utf-8')
             print("publisher!")
             if topic in self.dizionario.keys():
-                self.sock.sendall("SI\n")
+                self.sock.sendall("SI\n".encode())
                 for sock in self.dizionario[topic]:
                     sock.sendall(mess)
             else:
-                self.sock.sendall("NO\n")
+                self.sock.sendall("NO\n" .encode())
 
         print(self.dizionario)
 
