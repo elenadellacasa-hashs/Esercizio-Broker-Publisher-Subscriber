@@ -3,20 +3,23 @@ import sys
 
 
 def main():
-   host = "127.0.0.1"
-   port = 2208
 
+   if len(sys.argv) < 3:
+       print("Errore!!! non abbastanza argomenti inseriti. Formattazione corretta: python nome_file.py indirizzo_broker:porta_broker pub:topic:message")
+       return
+
+   broker = sys.argv[1].split(":")
+   addr = str(broker[0])
+   port = int(broker[1])
 
    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-   sock.connect((host, port))
+   sock.connect((addr, port))
 
-   if len(sys.argv) < 2:
-       print("Errore!!! non abbastanza argomenti inseriti")
-       return
-   stringa = sys.argv[1] + "\n"
+   stringa = sys.argv[2] + "\n"
    if len(stringa.split(":")) != 3 or stringa.split(":")[0] != "pub":
       print("ERRORE! inserire solamente pub:topic:messaggio")
       return
+
    sock.sendall(stringa.encode())
    messaggio = readLine(sock).decode("utf-8")
    if messaggio == "SI":
