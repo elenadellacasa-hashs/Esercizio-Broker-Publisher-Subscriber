@@ -15,7 +15,7 @@ def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((addr, port))
 
-    stringa = sys.argv[1] + "\n"
+    stringa = sys.argv[2] + "\n"
     if len(stringa.split(":")) != 2 or stringa.split(":")[0] != "sub":
         print("ERRORE! inserire solamente sub:topic")
         return
