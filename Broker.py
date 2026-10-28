@@ -1,7 +1,7 @@
 import threading
 import socket
 
-
+dizionario_lock = threading.Lock() #dizionario è una variabile comune a tutti i thread che può essere modificata allo stesso tempo da più thread. ci serve lock per fare in modo che l'accesso e la modifica siano sicuri
 class BrokerThreading(threading.Thread):
     def __init__(self, client, addr, diz):
         super().__init__()
@@ -17,29 +17,46 @@ class BrokerThreading(threading.Thread):
         return data.strip()
 
     def run(self):
-        messaggio = self.readLine(self.sock).decode('utf-8')
-        msg = messaggio.split(":")
-        if msg[0] == "sub":
-            topic = msg[1]
-            if topic in self.dizionario.keys():
-                self.dizionario[topic].append(self.sock)
-                print("Client aggiunto al topic")
-            else:
-                self.dizionario[topic] = []
-                self.dizionario[topic].append(self.sock)
+        try:
+            while True:
+                messaggio = self.readLine(self.sock).decode('utf-8')
+                msg = messaggio.split(":")
+                if not messaggio: # messaggio vuoto = il client si è disconnesso
+                    break
 
-        elif msg[0] == "pub":
-            topic = msg[1]
-            mess = msg[2].encode('utf-8')
-            print("publisher!")
-            if topic in self.dizionario.keys():
-                self.sock.sendall("SI\n".encode())
-                for sock in self.dizionario[topic]:
-                    sock.sendall(mess)
-            else:
-                self.sock.sendall("NO\n".encode())
+                if msg[0] == "sub":
+                    topic = msg[1]
 
-        print(self.dizionario)
+                    with dizionario_lock:
+                        if topic in self.dizionario.keys():
+                            self.dizionario[topic].append(self.sock)
+                            print("Client aggiunto al topic")
+                        else:
+                            self.dizionario[topic] = []
+                            self.dizionario[topic].append(self.sock)
+
+                elif msg[0] == "pub":
+                    topic = msg[1]
+                    mess = msg[2].encode('utf-8')
+                    print("publisher!")
+
+                    with dizionario_lock:
+                        if topic in self.dizionario.keys():
+                            self.sock.sendall("SI\n".encode())
+                            for sock in self.dizionario[topic]:
+                                sock.sendall(mess)
+                        else:
+                            self.sock.sendall("NO\n".encode())
+
+        except socket.error:
+            print("Errore del socket")
+        finally:
+            with dizionario_lock:
+                for topic in list(self.dizionario.keys()):  # list() crea una copia, altrimenti non avremmo potuto togliere il client dal dizionario mentre iteravamo il dizionario stesso
+                    if self.sock in self.dizionario[topic]:
+                        self.dizionario[topic].remove(self.sock)
+                        print(f"Client {self.sock} rimosso dal topic {topic}")
+            self.sock.close()
 
 
 def Main():

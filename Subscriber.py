@@ -25,8 +25,14 @@ def main():
     try:
         while True:
             print(sock.recv(1024).decode("utf-8"))
+
     except KeyboardInterrupt:
         print("interruzione da tastiera")
+
+    except socket.error:
+        print("Errore di connessione")
+
+    finally:
         sock.close()
 
 if __name__ == "__main__":
